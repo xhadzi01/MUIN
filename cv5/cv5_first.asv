@@ -1,0 +1,51 @@
+clc;clear all; close all;
+ 
+
+%% load data 
+for i = 1:1:6
+   cislo(i,:) = reshape(load(strcat(num2str(i-1),'.csv')),1,19*19)*2-1;
+   cisloS(i,:) = reshape(imnoise(load(strcat(num2str(i-1),'.csv')),'salt & pepper', 0.1),1,19*19)*2-1;
+   subplot(3, 6,i);
+   imshow(reshape(cislo(i,:),19,19));
+   subplot(3,6,i+6);
+   imshow(reshape(cisloS(i,:),19,19));
+end
+
+%% initialize Hopfield matrix
+
+% No of imputs
+No = size(cislo(1,:),2);
+delit = 100;                                 %  n = 12; u = 0.03
+% W  = (rand(No,No)*2-1)*0.3;                %  -0.3   az   0.3  
+% W = W - diag(diag(W));
+
+
+%% ucenie 
+W = zeros(No,No);
+for i = 1:1:6
+    W = W + cislo(i,:)'*cislo(i,:);
+end 
+W = W - diag(diag(W));
+
+ %% inicializacia 
+ m = cisloS(1,:);
+ ml = zeros(1,No);
+ %% aktivacia 
+while (1)
+     for in = 1:1:No
+        m = W(in,:).*m;
+     end
+    
+    
+    
+    m(m<0) = -1; 
+    m(m>=0)= 1;
+    if (m == ml)
+        break;
+    end
+    ml = m ; 
+end
+
+%% graphing
+  subplot(3,6,12);
+   imshow(reshape(m,19,19));
